@@ -5,7 +5,15 @@ public class Book {
 	private String description;
 	private double price;
 	private Integer stock;
-	
+	public Book(){
+		
+	}
+	public Book(String name,String description, double price, Integer stock){
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.stock = stock;
+	}
 	public String getName() {
 		return name;
 	}

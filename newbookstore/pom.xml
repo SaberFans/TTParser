@@ -24,27 +24,30 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.0-m01</version>
 		</dependency>
-
-<!-- 		<dependency>
+		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
-			<version>2.3.7.Final</version>
-		</dependency> -->
-		
-<!-- 	<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>2.7</version>
-		</dependency> -->
-<!-- 		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-bundle</artifactId>
-			<version>1.9.1</version>
-		</dependency> -->
-				
+			<version>3.0.8.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.0.4</version>
+		</dependency>
 		
 	</dependencies>
 	<build>
 		<finalName>newbookstore</finalName>
+		<plugins>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-compiler-plugin</artifactId>
+			  <version>2.1</version>
+			  <configuration>
+			    <source>1.7</source>
+			    <target>1.7</target>
+			  </configuration>
+			</plugin>
+		</plugins>	
 	</build>
 </project>

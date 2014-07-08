@@ -2,6 +2,9 @@ package com.rest;
 
 import java.io.IOException;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -22,32 +25,37 @@ public class BookService {
 		return Response.ok(
 				"{\"status\":\"Service Book Service is running...\"}").build();
 	}
-	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("all")
 	public Response getAllBook() {
 		//JsonObject model = Json.
-		String output="{\"booklist\":";
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		BookStore.instance.getBookList().add(new Book("monk","sad",10,10));
 		for(Book b:BookStore.instance.getBookList()){
-			
+			builder.add("books", Json.createArrayBuilder().
+					add(Json.createObjectBuilder()
+						.add("name", b.getName())
+						.add("price", b.getPrice())
+						.add("desc", b.getDescription())
+						.add("stock", b.getStock())));
 		}
-		output+="";
-		return Response.ok(output).build();
+		JsonObject ret = builder.build();
+		return Response.ok(ret).build();
 	}
 	
 	@POST
-	@Produces(MediaType.TEXT_HTML)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes("application/x-www-form-urlencoded")
 	public void newBook(@FormParam("name") String name,@FormParam("price") String price,@FormParam("stock") String stock,@FormParam("desc") String desc, @Context HttpServletResponse servletResponse) throws IOException {
 		Book book = new Book();
-		book.setName(name);
+		/*book.setName(name);  
 		book.setPrice(Double.parseDouble(price));
 		book.setStock(Integer.parseInt(stock));
-		book.setDescription(desc);
-		
+		book.setDescription(desc);*/
+		book.setName("hehe");
+		book.setPrice(11);
+		book.setStock(11);
+		book.setDescription(name+price+stock+desc);
 		BookStore.instance.getBookList().add(book);
-		servletResponse.sendRedirect("../create.html");
 	 }
-	
 }
