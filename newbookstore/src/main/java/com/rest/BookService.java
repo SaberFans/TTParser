@@ -45,8 +45,24 @@ public class BookService {
 		JsonObject ret = builder.build();
 		return Response.ok(ret).build();
 	}
-	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("search")
+	public Response search(@QueryParam("name") String name) {
+		Book found = null;
+		for(Book b: BookStore.instance.getBookList()){
+			if(b.getName().equals(name.trim()))
+				found = b;
+		}
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		if(found!=null){
+			builder.add("name", found.getName()).add("price", found.getPrice()).add("stock", found.getStock()).add("desc", found.getDescription());
+		}
+
+		return Response.status(200).entity(builder.build()).build(); 
+	}
 	@POST
+	@Path("add")
 	@Consumes("application/x-www-form-urlencoded")
 	public void newBook(@FormParam("name") String name,@FormParam("price") String price,@FormParam("stock") String stock,@FormParam("desc") String desc, @Context HttpServletResponse servletResponse) throws IOException {
 		Book book = new Book();
