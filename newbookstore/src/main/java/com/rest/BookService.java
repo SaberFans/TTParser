@@ -2,6 +2,7 @@ package com.rest;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -17,70 +18,39 @@ import com.rest.BookStore;
 /*
  * Book Service Controller
  */
-@Path("/bookservice")
+@Path("/books")
 public class BookService {
 	private int count =0 ;
-	@GET
+	/*@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("status")
 	public Response getStatus() {
-		
 		return Response.ok(
 				"{\"status\":\"Service Book Service is running "+BookStore.instance.getBookList().size()+ "...\"}").build();
-	}
+	}*/
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("all")
 	public Response getAllBook() {
-		//JsonObject model = Json.
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		JsonArrayBuilder array = Json.createArrayBuilder();
-		for(Book b:BookStore.instance.getBookList()){
-			array.add(Json.createObjectBuilder()
-					.add("name", b.getName())
-					.add("price",b.getPrice())
-					.add("stock", b.getStock())
-					.add("desc", b.getDescription()));
-		}
-		builder.add("books", array);
-		JsonObject ret = builder.build();
-		return Response.ok(ret).build();
+		JsonObject res = BookStore.getAllBooks();
+		return Response.ok(res).build();
 	}
-	@GET
+	@GET @Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("search")
-	public Response search(@QueryParam("name") String name) {
-		Book found = null;
-		for(Book b: BookStore.instance.getBookList()){
-			if(b.getName().equals(name.trim()))
-				found = b;
-		}
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		if(found!=null){
-			builder.add("name", found.getName()).add("price", found.getPrice()).add("stock", found.getStock()).add("desc", found.getDescription());
-		}
-
-		return Response.status(200).entity(builder.build()).build(); 
+	public Response getBookByName(@PathParam("name") String name){
+		JsonObject res = BookStore.getBookByName(name);
+		return Response.ok(res).build();
 	}
-	@POST
-	@Path("delete")
-	@Consumes("application/x-www-form-urlencoded")
-	public void delete(@FormParam("name") String name) {
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	public void addBooks(List<Book> list) {
+		 BookStore.instance.getBookList().addAll(list);
+	}
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void delete(Book book) {
 		Iterator<Book> i = BookStore.instance.getBookList().iterator();
 		while(i.hasNext()){
-			if(i.next().getName().equals(name.trim()))
+			if(book!=null && i.next().equals(book))
 				i.remove();
 		}
 	}
-	@POST
-	@Path("add")
-	@Consumes("application/x-www-form-urlencoded")
-	public void newBook(@FormParam("name") String name,@FormParam("price") String price,@FormParam("stock") String stock,@FormParam("desc") String desc){
-		Book book = new Book();
-		book.setName(name);  
-		book.setPrice(Double.parseDouble(price));
-		book.setStock(Integer.parseInt(stock));
-		book.setDescription(desc);
-		BookStore.instance.getBookList().add(book);
-	 }
 }
