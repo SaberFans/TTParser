@@ -96,7 +96,7 @@ public class BookService {
 				String query = "INSERT INTO book (name,price,stock,description)"
 						+ "		VALUES(?, ?, ?, ?) ";
 				PreparedStatement ps = con.prepareStatement(query);
-				while(Book b : list){
+				for(Book b : list){
 					ps.setString(1, b.getName());
 					ps.setDouble(2, b.getPrice());
 					ps.setInt(3, b.getStock());
