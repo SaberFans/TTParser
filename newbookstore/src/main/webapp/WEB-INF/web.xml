@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <web-app>
  	<display-name>newbookstore</display-name>
+ 	
  	<listener>
   		<listener-class>
   			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
