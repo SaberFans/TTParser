@@ -1,5 +1,7 @@
 package com.timetable.ttparser;
 
+import com.timetable.util.TTUtils;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
@@ -43,10 +45,10 @@ public class ParserMain {
 			url = new URL(MODULE_TIMETABLE + moduleId);
 			conn = url.openConnection();
 		} catch (MalformedURLException e1) {
-			System.out.println("Error occured in initializing URL, with url: "
+			System.out.println("MalformedURLException occured in initializing URL, with url: "
 					+ MODULE_TIMETABLE + moduleId);
 		} catch (IOException e) {
-			System.out.println("Error occured in URL.openConnection, with url: "
+			System.out.println("IOException occured in URL.openConnection, with url: "
 					+ MODULE_TIMETABLE + moduleId);
 		}
 
@@ -113,50 +115,7 @@ public class ParserMain {
 			System.out.println("Exception occured in closing the reader");
 			e.printStackTrace();
 		}
-	}
-
-	// Travesal all the elements ()
-	static public void parsetoHTMLElements() {
-		Reader reader = getModuleReader("cs4004");
-
-		HTMLEditorKit htmlKit = new HTMLEditorKit();
-		HTMLDocument htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
-		HTMLEditorKit.Parser parser = new ParserDelegator();
-
-		try {
-			parser.parse(reader, htmlDoc.getReader(0), true);
-
-			ElementIterator iterator = new ElementIterator(htmlDoc);
-			Element elem;
-			while ((elem = iterator.next()) != null) {
-				AttributeSet attrSet = elem.getAttributes();
-
-				System.out.println('>' + elem.toString());
-				System.out.println('>' + (elem.getName()));
-				System.out.println('>' + elem.getAttributes().getAttributeCount());
-				Enumeration attrNames = elem.getAttributes().getAttributeNames();
-				while (attrNames.hasMoreElements()) {
-					Object attr = attrNames.nextElement();
-					System.out.println("  Attribute: '" + attr + "', Value: '"
-							+ attrSet.getAttribute(attr) + "'");
-					Object tag = attrSet.getAttribute(StyleConstants.NameAttribute);
-					if (attr == StyleConstants.NameAttribute && tag == HTML.Tag.CONTENT) {
-						int startOffset = elem.getStartOffset();
-						int endOffset = elem.getEndOffset();
-						int length = endOffset - startOffset;
-						System.out.printf("    Content (%d-%d): '%s'\n", startOffset,
-								endOffset, htmlDoc.getText(startOffset, length).trim());
-					}
-				}
-			}
-
-		} catch (IOException e) {
-			System.out.println("Exception occured when parsing inputstream to html");
-		} catch (BadLocationException e) {
-			System.out.println("Exception occured when extracting the content");
-		}
-
-	}
+    }
 
 	static public void parseToHTML() {
 		Reader reader = getModuleReader("cs4004");
@@ -188,8 +147,9 @@ public class ParserMain {
 	}
 
 	static public void main(String[] args) {
+       Reader reader = getModuleReader("cs4004");
 
-		parseTR();
+       TTUtils.parser();
 	}
 }
 
