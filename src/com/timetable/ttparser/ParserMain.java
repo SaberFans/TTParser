@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -36,6 +37,7 @@ public class ParserMain {
 	static public String	STUDENT_TIMETABLE	= "";
 	static public String	MODULE_DETAILS		= "";
 
+	// Get Module timetable into a Reader
 	static public Reader getModuleReader(String moduleId) {
 
 		// Create the connection to
@@ -65,6 +67,7 @@ public class ParserMain {
 		return null;
 	}
 
+	// Save module timetable into local file
 	static public void parseModule(String moduleId) {
 		URL url = null;
 		URLConnection conn = null;
@@ -97,6 +100,7 @@ public class ParserMain {
 		}
 	}
 
+	// call the HTMLTableParser callback
 	static public void parseTR() {
 
 		Reader reader = getModuleReader("cs4004");
@@ -115,10 +119,12 @@ public class ParserMain {
 			System.out.println("Exception occured in closing the reader");
 			e.printStackTrace();
 		}
-    }
+	}
 
 	static public void parseToHTML() {
-		Reader reader = getModuleReader("cs4004");
+		Reader reader = new StringReader(
+				"<html><body><ul></ul><table><tr><td>addf</td></tr></table></body></html>");// getModuleReader("cs4004");
+
 		HTMLEditorKit htmlKit = new HTMLEditorKit();
 		HTMLDocument htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
 		HTMLEditorKit.Parser parser = new ParserDelegator();
@@ -128,8 +134,9 @@ public class ParserMain {
 
 			// After parsing the htmlDoc should contain the HTML DOM elements
 			// for visiting
-			for (HTMLDocument.Iterator it = htmlDoc.getIterator(HTML.Tag.TR); it.isValid(); it
+			for (HTMLDocument.Iterator it = htmlDoc.getIterator(HTML.Tag.UL); it.isValid(); it
 					.next()) {
+				System.out.println("breaking");
 				int start = it.getStartOffset();
 				int size = it.getEndOffset() - start;
 
@@ -147,12 +154,13 @@ public class ParserMain {
 	}
 
 	static public void main(String[] args) {
-       Reader reader = getModuleReader("cs4004");
+		Reader reader = getModuleReader("cs4004");
 
-       TTUtils.parser();
+		TTUtils.parseIntoStringReader();
 	}
 }
 
+// Callback for catching the start tag and end tag to intercept the content
 class HTMLTableParser extends HTMLEditorKit.ParserCallback {
 
 	private boolean	encounteredATableRow	= false;
