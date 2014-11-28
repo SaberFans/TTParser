@@ -35,15 +35,7 @@ import java.util.List;
  *
  */
 public class ParserMain {
-	
-	
 
-	
 
-	
-
-	static public void main(String[] args) {
-		parse();
-	}
 }
 
