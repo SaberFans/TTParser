@@ -6,5 +6,13 @@ package com.timetable.models;
  *  represents the module in Timetable system
  */
 public class Module {
+	ModuleTime time;
+	
+	String building;
+	String room;
+	String duration;
+	Module(){
+		
+	}
 
 }

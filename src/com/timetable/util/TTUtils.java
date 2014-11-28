@@ -1,110 +1,151 @@
 package com.timetable.util;
 
-import com.timetable.ttparser.ParserMain;
-
-import javax.swing.JEditorPane;
 import javax.swing.text.*;
 import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
 
-import org.w3c.dom.html.HTMLElement;
+import com.timetable.models.Module;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author epttwxz TTUtils class, utils for converting the HTML timetable to
- *         Java POJO modules - Traversal the elements in timetable - Capture the
- *         modules chunks
+ * @author epttwxz TTUtils class, Util Class for Parsing the HTML timetable to
+ *         Java POJO - Traversal the elements in timetable - Capture the modules
+ *         chunks
  */
 public class TTUtils {
-	public static void parseIntoStringReader() {
-		// Load module timetable 'file' in a reader
-		Reader reader = ParserMain.getModuleReader("cs4004");
-		StringWriter strreader = new StringWriter();
-		HTMLEditorKit editorKit = new HTMLEditorKit();
-		HTMLDocument htmlDoc = (HTMLDocument) editorKit.createDefaultDocument();
-		htmlDoc.putProperty("IgnoreCharsetDirective", true);
 
+	static public String	MODULE_TIMETABLE	= "http://www.timetable.ul.ie/mod_res.asp?T1=";
+	static public String	STUDENT_TIMETABLE	= "";
+	static public String	MODULE_DETAIL_TABLE	= "";
+
+	// Get Module timetable into a Reader
+	static public Reader getModuleReader(String moduleId) {
+
+		// Create the connection to
+		URL url = null;
+		URLConnection conn = null;
 		try {
-			editorKit.read(reader, htmlDoc, 0);
-			
-
-		} catch (IOException | BadLocationException e1) {
-			e1.printStackTrace();
+			url = new URL(MODULE_TIMETABLE + moduleId);
+			conn = url.openConnection();
+		} catch (MalformedURLException e1) {
+			System.out.println("MalformedURLException occured in initializing URL, with url: "
+					+ MODULE_TIMETABLE + moduleId);
+		} catch (IOException e) {
+			System.out.println("IOException occured in URL.openConnection, with url: "
+					+ MODULE_TIMETABLE + moduleId);
 		}
 
+		// Create BufferedReader from URL connection
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					conn.getInputStream()));
+			return reader;
+		} catch (IOException e) {
+			System.out
+					.println("Error occured in get input stream from opening a connection to "
+							+ MODULE_TIMETABLE + moduleId);
+		}
+		return null;
 	}
 
-	public static void parser() {
-		// Load module timetable 'file' in a reader
-		Reader reader = ParserMain.getModuleReader("cs4004");
-
-		JEditorPane p = new JEditorPane();
-		p.setContentType("text/html");
-
-		// Document text is provided below.
-		// p.setText("<html>   <head>     <title>An example HTMLDocument</title>     <style type='text/css'>       div { background-color: silver; }       ul { color: red; }     </style>   </head>   <body>  <table><tr><td>la</td></tr></table>    <div id='BOX'>       <p>Paragraph 1</p>       <p>Paragraph 2</p>     </div>   </body> </html>\\");
-		p.setText("<html><body><table><tr><td>123456789</td></tr><tr><td><font>abcdefghijk</font></td></tr></table></body></html>\\");
-		// HTMLDocument htmlDoc = (HTMLDocument) p.getDocument();
-
-		HTMLEditorKit editorKit = new HTMLEditorKit();
-		HTMLDocument htmlDoc = (HTMLDocument) editorKit.createDefaultDocument();
-
-		HTMLEditorKit.Parser parser = new ParserDelegator();
-		HTMLEditorKit.ParserCallback callback = htmlDoc.getReader(0);
+	// Save module timetable into local file
+	static public void parseModule(String moduleId) {
+		URL url = null;
+		URLConnection conn = null;
 		try {
-			htmlDoc.putProperty("IgnoreCharsetDirective", true);
-
-			// editorKit.read(reader, htmlDoc, 0);
-			parser.parse(reader, callback, true);
+			url = new URL(MODULE_TIMETABLE + moduleId);
+			conn = url.openConnection();
+		} catch (MalformedURLException e1) {
+			System.out.println("Error occured in initializing URL, with url: "
+					+ MODULE_TIMETABLE + moduleId);
 		} catch (IOException e) {
+			System.out.println("Error occured in URL.openConnection, with url: "
+					+ MODULE_TIMETABLE + moduleId);
+		}
+
+		// Save to local file
+		File file = new File("./tdata/" + moduleId + ".html");
+
+		String line;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+				conn.getInputStream()));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(file));) {
+			while ((line = reader.readLine()) != null) {
+				writer.write(line);
+				writer.write("\n");
+			}
+		} catch (IOException e) {
+			System.out
+					.println("IOException occured in saving the module timetable (moduleID: "
+							+ moduleId);
+		}
+	}
+	static public List<Module> extractModule(){
+		List<Module> moduleList = new ArrayList<>();
+		
+		return moduleList;
+	}
+	static public void parse() {
+
+		Reader reader = getModuleReader("cs4004");
+		try {
+			HTMLEditorKit.Parser parser = new ParserDelegator();
+			HTMLTableParser callback = new HTMLTableParser();
+			parser.parse(reader, callback, true);
+			System.out.println(callback.dates);
+			System.out.println(callback.modules);
+			reader.close();
+			
+			
+		} catch (IOException e) {
+			System.out.println("Exception occured parsing the TR element");
 			e.printStackTrace();
 		}
-		System.out.println(HTML.Tag.DIV.isBlock());
-		System.out.println(htmlDoc.getIterator(HTML.Tag.A));
+	}
 
-		// ElementIterator it = new ElementIterator(htmlDoc);
-		// while (true) {
-		// Element el = it.next();
-		//
-		// if (el == null)
-		// break;
-		// System.out.println(el.getName());
-		// int start = el.getStartOffset();
-		// int end = el.getEndOffset();
-		// int length = htmlDoc.getLength();
-		// String text;
-		// try {
-		// text = htmlDoc.getText(start, length-1);
-		// //System.out.println(el.getAttributes() + " inline text:" +
-		// text.trim());
-		// } catch (BadLocationException e) {
-		//
-		// e.printStackTrace();
-		// }
-		//
-		// }
+	// Callback for catching the start tag and end tag to intercept the content
+	static class HTMLTableParser extends HTMLEditorKit.ParserCallback {
+		public List<String>	dates					= new ArrayList<>();
+		public List<String>	modules					= new ArrayList<>();
+		private boolean		encounteredATableRow	= false;
 
-		// Parse Process
-		ElementIterator iterator = new ElementIterator(htmlDoc);
-		Element element;
-		while (true) {
-			if ((element = iterator.next()) != null)
-				System.out.println();
-			else
-				break;
+		public void handleText(char[] data, int pos) {
+			if (encounteredATableRow) {
+				String token = new String(data);
+				String nbsp = (char) 160 + "";
+				token = token.replace((char) 160, ' ');
 
-			AttributeSet attributes = element.getAttributes();
-			Object name = attributes.getAttribute(StyleConstants.NameAttribute);
-			System.out.println(name);
-			// if (name == HTML.Tag.FONT) {
-			// System.out.println("font found");
-			// }
+				if (token.trim().length() != 0) {
+					if (dates.size() == 6)
+						modules.add(token);
+					if (dates.size() < 6)
+						dates.add(token);
+				}
+
+			}
+		}
+
+		public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int pos) {
+			if (t == HTML.Tag.TD)
+				encounteredATableRow = true;
+		}
+
+		public void handleEndTag(HTML.Tag t, int pos) {
+			if (t == HTML.Tag.TD)
+				encounteredATableRow = false;
 		}
 	}
 
