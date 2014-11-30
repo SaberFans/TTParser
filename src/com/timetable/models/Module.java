@@ -7,10 +7,7 @@ package com.timetable.models;
  */
 public class Module {
 	ModuleTime time;
-	
-	String building;
-	String room;
-	String duration;
+
 	Module(){
 		
 	}

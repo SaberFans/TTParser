@@ -6,6 +6,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
 
 import com.timetable.models.Module;
+import com.timetable.models.ModuleTime;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -93,23 +95,51 @@ public class TTUtils {
 							+ moduleId);
 		}
 	}
-	static public List<Module> extractModule(){
+
+	static public List<Module> extractModule() {
 		List<Module> moduleList = new ArrayList<>();
-		
+
 		return moduleList;
 	}
+
 	static public void parse() {
 
-		Reader reader = getModuleReader("cs4004");
+		Reader reader = getModuleReader("cs4006");
 		try {
 			HTMLEditorKit.Parser parser = new ParserDelegator();
 			HTMLTableParser callback = new HTMLTableParser();
 			parser.parse(reader, callback, true);
 			System.out.println(callback.dates);
 			System.out.println(callback.modules);
+			List<ModuleTime> moduleList = new ArrayList<>();
+
+			for (Iterator<String> it = callback.modules.iterator(); it.hasNext();) {
+				String startTime = it.next();
+				String dash = it.next();
+				String endTime = it.next();
+				String group = null;
+
+				String type = it.next();
+
+				if (!type.equals("LEC")) {
+					group = it.next();
+				}
+				String moduleTeacher = it.next();
+				String location = it.next();
+				String duration = it.next();
+
+				// create moduletime based on parsing
+				ModuleTime moduleTime = new ModuleTime(startTime, endTime);
+				moduleTime.setType(type);
+				moduleTime.setGroup(group);
+				moduleTime.setRoom(location);
+				moduleTime.setDuration(duration);
+
+				moduleList.add(moduleTime);
+
+			}
 			reader.close();
-			
-			
+
 		} catch (IOException e) {
 			System.out.println("Exception occured parsing the TR element");
 			e.printStackTrace();
@@ -125,14 +155,14 @@ public class TTUtils {
 		public void handleText(char[] data, int pos) {
 			if (encounteredATableRow) {
 				String token = new String(data);
-				String nbsp = (char) 160 + "";
-				token = token.replace((char) 160, ' ');
+				char nbsp = 160;
+				token = token.replace(nbsp, ' ');
 
 				if (token.trim().length() != 0) {
 					if (dates.size() == 6)
-						modules.add(token);
+						modules.add(token.trim());
 					if (dates.size() < 6)
-						dates.add(token);
+						dates.add(token.trim());
 				}
 
 			}
