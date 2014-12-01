@@ -3,15 +3,23 @@ package com.timetable.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import com.timetable.util.TTUtils;
 
+
 public class ModuleTime {
-	Date	startTime;
-	Date	endTime;
-	String	type;
-	String	group;
-	String	duration;
+	// private static final Logger logger =
+	// LoggerFactory.getLogger(ModuleTime.class);
+	private Date	startTime;
+	private Date	endTime;
+	private String	type;
+	private String	group;
+
+	private String	moduleTeacher;
+	private Date	dayInWeek;
+	private String	room;
+	private String	duration;
 
 	public String getDuration() {
 		return duration;
@@ -25,10 +33,6 @@ public class ModuleTime {
 		this.endTime = endTime;
 	}
 
-	String	location;
-
-	String	room;
-
 	public ModuleTime(String start, String end) {
 		SimpleDateFormat formatter = new SimpleDateFormat("hh:mm");
 		try {
@@ -41,11 +45,13 @@ public class ModuleTime {
 	}
 
 	public String getStartTime() {
-		return endTime.toString();
+		SimpleDateFormat formatter = new SimpleDateFormat("hh:mm");
+		return formatter.format(startTime);
 	}
 
 	public String getEndTime() {
-		return endTime.toString();
+		SimpleDateFormat formatter = new SimpleDateFormat("hh:mm");
+		return formatter.format(endTime);
 	}
 
 	public String getType() {
@@ -56,12 +62,12 @@ public class ModuleTime {
 		this.type = type;
 	}
 
-	public String getLocation() {
-		return location;
+	public String getModuleTeacher() {
+		return moduleTeacher;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setModuleTeacher(String moduleTeacher) {
+		this.moduleTeacher = moduleTeacher;
 	}
 
 	public String getRoom() {
@@ -84,11 +90,55 @@ public class ModuleTime {
 		this.group = group;
 	}
 
+	// Variant getter for dayInWeek
+	public Date getDayInWeek() {
+		return dayInWeek;
+	}
+
+	public String getDayInWeekString() {
+		SimpleDateFormat format = new SimpleDateFormat("EEEE");
+		return format.format(this.dayInWeek);
+	}
+
+	// Variant setter for dayInWeek
+	public void setDayInWeek(String dayInWeek) {
+		SimpleDateFormat format = new SimpleDateFormat("EEE");
+		try {
+			this.dayInWeek = format.parse(dayInWeek);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setDayInWeek(Date dayInWeek) {
+		this.dayInWeek = dayInWeek;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		SimpleDateFormat formatter = new SimpleDateFormat("hh:mm");
+		builder.append(getDayInWeekString())
+				.append(", ")
+				.append(getStartTime()).append("-").append(getEndTime())
+				.append(", ")
+				.append(getType())
+				.append(", ")
+				.append(getModuleTeacher())
+				.append(", ")
+				.append(getRoom());
+
+		return builder.toString();
+	}
+
 	public static void main(String[] args) {
 
 		// ModuleTime t = new ModuleTime("11:00", "12:00");
 
-		TTUtils.parse();
+		List<ModuleTime> list = TTUtils.parseModuleTime("AC4213");
+		for (ModuleTime time : list) {
+			System.out.println(time);
+		}
 
 	}
 

@@ -21,17 +21,18 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * @author epttwxz TTUtils class, Util Class for Parsing the HTML timetable to
- *         Java POJO - Traversal the elements in timetable - Capture the modules
- *         chunks
+ * @author epttwxz ----------------------------------------------------------
+ *         TTUtils class, Util Class for Parsing the HTML timetable to Java POJO
+ *         - Traversal the elements in timetable - Capture the modules chunks
  */
 public class TTUtils {
-
-	static public String	MODULE_TIMETABLE	= "http://www.timetable.ul.ie/mod_res.asp?T1=";
-	static public String	STUDENT_TIMETABLE	= "";
-	static public String	MODULE_DETAIL_TABLE	= "";
+	static public String		MODULE_TIMETABLE	= "http://www.timetable.ul.ie/mod_res.asp?T1=";
+	static public String		STUDENT_TIMETABLE	= "http://www.timetable.ul.ie/";
+	static public String		MODULE_DETAIL_TABLE	= "http://www.timetable.ul.ie/";
+	static public String[]		DAY_IN_WEEK			= { "MON", "TUE", "WED", "THU", "FRI" };
 
 	// Get Module timetable into a Reader
 	static public Reader getModuleReader(String moduleId) {
@@ -64,7 +65,7 @@ public class TTUtils {
 	}
 
 	// Save module timetable into local file
-	static public void parseModule(String moduleId) {
+	static public void saveModuleTime(String moduleId) {
 		URL url = null;
 		URLConnection conn = null;
 		try {
@@ -102,24 +103,35 @@ public class TTUtils {
 		return moduleList;
 	}
 
-	static public void parse() {
+	// Parse module timetable into ModuleTime Plain Old Java Object
+	static public List<ModuleTime> parseModuleTime(String moduleCode) {
+		List<ModuleTime> moduleList = new ArrayList<>();
 
-		Reader reader = getModuleReader("cs4006");
-		try {
+		try (Reader reader = getModuleReader(moduleCode);) {
 			HTMLEditorKit.Parser parser = new ParserDelegator();
 			HTMLTableParser callback = new HTMLTableParser();
 			parser.parse(reader, callback, true);
 			System.out.println(callback.dates);
 			System.out.println(callback.modules);
-			List<ModuleTime> moduleList = new ArrayList<>();
-
+			int day = 0;
 			for (Iterator<String> it = callback.modules.iterator(); it.hasNext();) {
-				String startTime = it.next();
+
+				String separator = null;
+				while (it.hasNext()) {
+					if ((separator = it.next()).equals("/"))
+						day++;
+					else
+						break;
+				}
+				if(!it.hasNext())
+					break;
+				String startTime = separator;
 				String dash = it.next();
 				String endTime = it.next();
 				String group = null;
 
 				String type = it.next();
+				dash = it.next();
 
 				if (!type.equals("LEC")) {
 					group = it.next();
@@ -132,25 +144,30 @@ public class TTUtils {
 				ModuleTime moduleTime = new ModuleTime(startTime, endTime);
 				moduleTime.setType(type);
 				moduleTime.setGroup(group);
+				moduleTime.setModuleTeacher(moduleTeacher);
 				moduleTime.setRoom(location);
 				moduleTime.setDuration(duration);
-
+				moduleTime.setDayInWeek(TTUtils.DAY_IN_WEEK[day]);
 				moduleList.add(moduleTime);
 
 			}
-			reader.close();
+			return moduleList;
 
 		} catch (IOException e) {
 			System.out.println("Exception occured parsing the TR element");
 			e.printStackTrace();
+			return moduleList;
 		}
+
 	}
 
 	// Callback for catching the start tag and end tag to intercept the content
 	static class HTMLTableParser extends HTMLEditorKit.ParserCallback {
-		public List<String>	dates					= new ArrayList<>();
-		public List<String>	modules					= new ArrayList<>();
-		private boolean		encounteredATableRow	= false;
+		public List<String>		dates					= new ArrayList<>();
+		public List<String>		modules					= new ArrayList<>();
+		private boolean			encounteredATableRow	= false;
+		public static String	DAY_SEPARATOR			= "/";
+		private boolean			enterTimeGrid			= false;
 
 		public void handleText(char[] data, int pos) {
 			if (encounteredATableRow) {
@@ -174,8 +191,14 @@ public class TTUtils {
 		}
 
 		public void handleEndTag(HTML.Tag t, int pos) {
-			if (t == HTML.Tag.TD)
+			if (t == HTML.Tag.TD) {
 				encounteredATableRow = false;
+
+				if (enterTimeGrid)
+					modules.add(DAY_SEPARATOR);
+				else if (dates.size() == 6)
+					enterTimeGrid = true;
+			}
 		}
 	}
 
