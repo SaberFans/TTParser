@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+
+     <parent>
+          <groupId>TTParser</groupId>
+          <artifactId>TTParserPOM</artifactId>
+          <version>1.0.0</version>
+     </parent>
+
+     <artifactId>TTParserView</artifactId>
+     <packaging>war</packaging>
+
+     <name>TTParserView Maven Webapp</name>
+     <url>http://maven.apache.org</url>
+
+     <build>
+          <plugins>
+               <plugin>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                         <warName>${project.parent.artifactId}</warName>
+                         <failOnMissingWebXml>false</failOnMissingWebXml>
+                         <webappDirectory>target/${project.parent.artifactId}-${project.version}</webappDirectory>
+                         <resource>
+                              <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+                              <filtering>true</filtering>
+                              <targetPath>WEB-INF</targetPath>
+                              <includes>
+                                   <include>*.xml</include>
+                              </includes>
+                         </resource>
+                    </configuration>
+               </plugin>
+              
+          </plugins>
+     </build>
+
+
+
+     <dependencies>
+          <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <scope>test</scope>
+          </dependency>
+
+          <!-- JAVA EE API dependency -->
+          <dependency>
+               <groupId>javax</groupId>
+               <artifactId>javaee-api</artifactId>
+               <scope>provided</scope>
+          </dependency>
+
+          <!-- EJB module, TTParser -->
+          <dependency>
+               <groupId>${project.groupId}</groupId>
+               <artifactId>TTParserEJB</artifactId>
+               <version>${project.version}</version>
+               <type>ejb</type>
+          </dependency>
+     </dependencies>
+</project>

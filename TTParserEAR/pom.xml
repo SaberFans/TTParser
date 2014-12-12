@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+
+     <parent>
+          <groupId>TTParser</groupId>
+          <artifactId>TTParserPOM</artifactId>
+          <version>1.0.0</version>
+     </parent>
+
+     <artifactId>TTParserEAR</artifactId>
+     <packaging>ear</packaging>
+
+     <name>TTParserEAR</name>
+     <url>http://maven.apache.org</url>
+
+     <properties>
+          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+          <version.maven-ear-plugin>2.7</version.maven-ear-plugin>
+		  <project.war.contextRoot>/timetable</project.war.contextRoot>
+          
+     </properties>
+
+     <build>
+          <outputDirectory>${project.parent.artifactId}-${project.version}</outputDirectory>
+          <plugins>
+               <plugin>
+                    <groupId>org.jboss.as.plugins</groupId>
+                    <artifactId>jboss-as-maven-plugin</artifactId>
+                    <configuration>
+                         <filename>${project.parent.artifactId}.${project.packaging}</filename>
+                         <skip>false</skip>
+                    </configuration>
+               </plugin>
+               <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <version>${version.maven-ear-plugin}</version><!--$NO-MVN-MAN-VER$ -->
+                    <configuration>
+                         <version>${version.jee}</version>
+                         <workDirectory>target/${project.parent.artifactId}-${project.version}</workDirectory>
+                         <defaultLibBundleDir>${project.ear.defaultLibBundleDir}</defaultLibBundleDir>
+                         <description>${project.parent.artifactId} JEE6
+                              service</description>
+                         <displayName>${project.parent.artifactId} JEE6
+                              service</displayName>
+                         <archive>
+                              <manifestEntries>
+                                   <Dependencies>${project.ear.Dependencies}</Dependencies>
+                              </manifestEntries>
+                         </archive>
+                         <modules>
+                              <ejbModule>
+                                   <groupId>${project.groupId}</groupId>
+                                   <artifactId>TTParserEJB</artifactId>
+                              </ejbModule>
+                              <!-- <ejbModule> <groupId>${project.groupId}</groupId> 
+                                   <artifactId>externaltrigger-adapter-ejb</artifactId> </ejbModule> -->
+                              <webModule>
+                                   <groupId>${project.groupId}</groupId>
+                                   <artifactId>TTParserView</artifactId>
+                                   <contextRoot>${project.war.contextRoot}</contextRoot>
+                              </webModule>
+                         </modules>
+                    </configuration>
+               </plugin>
+          </plugins>
+     </build>
+	 
+	 <dependencies>
+
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>TTParserEJB</artifactId>
+            <version>${project.version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>TTParserView</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+
+     </dependencies>
+</project>
